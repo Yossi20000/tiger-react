@@ -2,6 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <title>Tiger Table OBS</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body { background: #020617; padding: 40px; font-family: sans-serif; }</style>
@@ -24,18 +25,20 @@
         </table>
     </div>
     <script>
-        const socket = io('https://tiger-react-panel.onrender.com');
+        const socket = io('https://tiger-panel.onrender.com');
         socket.on('gameState', (data) => {
-            const container = document.getElementById('table-body');
-            const sorted = [...data.teams].sort((a, b) => (b.totalTournamentScore + b.currentGameKills) - (a.totalTournamentScore + a.currentGameKills));
-            container.innerHTML = sorted.map((t, i) => `
-                <tr class="border-b border-blue-800/30 h-16 transition-all">
-                    <td class="p-4 pr-10 font-black text-blue-400 italic text-3xl">#${i + 1}</td>
-                    <td class="p-4 font-black text-2xl uppercase italic tracking-tighter">${t.name}</td>
-                    <td class="p-4 text-center font-mono text-2xl font-bold text-blue-200">${t.currentGameKills}</td>
-                    <td class="p-4 text-center font-black text-4xl text-yellow-400">${t.totalTournamentScore + t.currentGameKills}</td>
-                </tr>
-            `).join('');
+            if (data && data.teams) {
+                const container = document.getElementById('table-body');
+                const sorted = [...data.teams].sort((a, b) => (b.totalTournamentScore + b.currentGameKills) - (a.totalTournamentScore + a.currentGameKills));
+                container.innerHTML = sorted.map((t, i) => `
+                    <tr class="border-b border-blue-800/30 h-16 transition-all hover:bg-blue-800/20">
+                        <td class="p-4 pr-10 font-black text-blue-400 italic text-3xl">#${i + 1}</td>
+                        <td class="p-4 font-black text-2xl uppercase italic tracking-tighter">${t.name}</td>
+                        <td class="p-4 text-center font-mono text-2xl font-bold text-blue-200">${t.currentGameKills}</td>
+                        <td class="p-4 text-center font-black text-4xl text-yellow-400 font-mono">${t.totalTournamentScore + t.currentGameKills}</td>
+                    </tr>
+                `).join('');
+            }
         });
     </script>
 </body>
