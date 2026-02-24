@@ -10,8 +10,8 @@ import {
   Trophy, 
   Image as ImageIcon, 
   RotateCw, 
-  Trash as TrashIcon, // שינוי שם למניעת התנגשות
-  Lock as LockIcon,   // שינוי שם למניעת התנגשות
+  Trash as TrashIcon, // תיקון התנגשות השמות
+  Lock as LockIcon,   // תיקון התנגשות השמות
   Settings, 
   Layout 
 } from 'lucide-react';
@@ -35,7 +35,6 @@ const TimerOverlay = ({ timer }) => (
 
 const OrangeLeaderboard = ({ gameState }) => {
   const isTeamDead = (team) => team.players.every(p => p.status === 'Dead');
-
   const sortedTeams = [...gameState.teams].sort((a, b) => {
     const aDead = isTeamDead(a);
     const bDead = isTeamDead(b);
@@ -61,7 +60,7 @@ const OrangeLeaderboard = ({ gameState }) => {
               <div className="flex-1 px-5 py-1 skew-x-[12deg] flex justify-between items-center text-white overflow-visible">
                 <div className="flex items-center gap-3 overflow-visible">
                   <div className="w-7 h-7 bg-slate-800 rounded border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
-                    {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[6px] text-slate-600 font-black italic">TIGER</span>}
+                    {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" alt="" /> : <span className="text-[6px] text-slate-600 font-black italic">TIGER</span>}
                   </div>
                   <div className="flex flex-col items-start leading-none overflow-visible">
                     <span className={`font-black uppercase italic text-xs tracking-tight truncate w-24 pr-1 text-right ${dead ? 'text-slate-400' : 'text-white'}`}>
@@ -121,7 +120,7 @@ const BlueSummaryOverlay = ({ teams }) => {
                 <td className="p-4 pr-10 font-black text-blue-400 italic text-3xl">#{i + 1}</td>
                 <td className="p-4 flex items-center gap-4">
                   <div className="w-10 h-10 bg-slate-800 rounded-lg border border-blue-400/30 overflow-hidden shadow-inner flex items-center justify-center">
-                    {t.logoUrl ? <img src={t.logoUrl} className="w-full h-full object-cover" /> : <div className="text-[8px] text-slate-500">TIGER</div>}
+                    {t.logoUrl ? <img src={t.logoUrl} className="w-full h-full object-cover" alt="" /> : <div className="text-[8px] text-slate-500">TIGER</div>}
                   </div>
                   <span className="font-black text-2xl uppercase italic tracking-tighter">{t.name}</span>
                 </td>
@@ -136,8 +135,6 @@ const BlueSummaryOverlay = ({ teams }) => {
   );
 };
 
-// --- קומפוננטה ראשית ---
-
 function App() {
   const [internalView, setInternalView] = useState('admin'); 
   const [gameState, setGameState] = useState({ 
@@ -147,7 +144,6 @@ function App() {
   const fileInputRef = useRef(null);
   const [selectedTeamForLogo, setSelectedTeamForLogo] = useState(null);
 
-  // זיהוי תצוגה מה-URL עבור OBS
   const params = new URLSearchParams(window.location.search);
   const urlView = params.get('view');
 
@@ -234,7 +230,7 @@ function App() {
           <div className="w-px bg-slate-800 mx-2" />
           <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => ({...t, currentGameKills: 0, placement: 0, players: Array(4).fill({status: 'Alive'})})), timer: {...gameState.timer, isRunning: false}})} className="bg-emerald-700 hover:bg-emerald-600 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><RotateCw size={16}/> NEXT MATCH</button>
           <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => ({...t, totalTournamentScore: 0, currentGameKills: 0}))})} className="bg-amber-700 hover:bg-amber-600 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><RotateCcw size={16}/> RESET SCORE</button>
-          <button onClick={() => {if(confirm("מחיקת הכל?")) socket.emit('updateState', {teams: [], timer: {minutes: 20, seconds: 0, isRunning: false}})}} className="bg-red-900 hover:bg-red-800 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><TrashIcon size={16}/> DELETE ALL</button>
+          <button onClick={() => {if(window.confirm("מחיקת הכל?")) socket.emit('updateState', {teams: [], timer: {minutes: 20, seconds: 0, isRunning: false}})}} className="bg-red-900 hover:bg-red-800 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><TrashIcon size={16}/> DELETE ALL</button>
           <button onClick={addTeam} className="bg-orange-600 hover:bg-orange-500 px-6 rounded-2xl font-black flex items-center gap-2 shadow-lg"><Plus size={24} strokeWidth={3} /> TEAM</button>
         </div>
       </header>
@@ -250,7 +246,7 @@ function App() {
 
               <div className="flex justify-between items-center mb-3">
                 <div onClick={() => { setSelectedTeamForLogo(team.id); fileInputRef.current.click(); }} className="w-10 h-10 bg-slate-800 rounded-xl border-2 border-slate-700 overflow-hidden cursor-pointer hover:border-orange-500 shrink-0 flex items-center justify-center">
-                  {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" /> : <ImageIcon size={16} className="text-slate-600"/>}
+                  {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" alt="" /> : <ImageIcon size={16} className="text-slate-600"/>}
                 </div>
                 <h2 className="text-[11px] font-black uppercase truncate flex-1 px-2">{team.name}</h2>
                 <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.filter(t=>t.id!==team.id)})} className="text-slate-700 hover:text-red-500"><Trash2 size={14}/></button>
@@ -276,7 +272,7 @@ function App() {
                 </div>
                 <div className="flex flex-col gap-1">
                    <button onClick={() => {
-                     const rank = prompt("בחר מיקום (1-16):");
+                     const rank = window.prompt("בחר מיקום (1-16):");
                      const rankNum = parseInt(rank);
                      if (isNaN(rankNum) || rankNum < 1 || rankNum > 16) return;
                      socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => t.id === team.id ? {...t, placement: rankNum, totalTournamentScore: t.totalTournamentScore + PLACEMENT_POINTS[rankNum]} : t)});
