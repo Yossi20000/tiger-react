@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background: transparent; overflow: hidden; }</style>
+</head>
+<body class="h-screen flex items-center justify-center">
+    <div class="bg-black/90 border-4 border-orange-500 px-12 py-6 rounded-[3rem] shadow-2xl">
+        <span id="timer-text" class="text-9xl font-mono font-black text-white tracking-tighter">00:00</span>
+    </div>
+    <script>
+        const socket = io('https://tiger-react-panel.onrender.com'); 
+        socket.on('gameState', (data) => {
+            const min = String(data.timer.minutes).padStart(2, '0');
+            const sec = String(data.timer.seconds).padStart(2, '0');
+            document.getElementById('timer-text').innerText = `${min}:${sec}`;
+        });
+    </script>
+</body>
+</html>
