@@ -1,17 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import socket from './socket';
-// הוסף את שלוש השורות האלו אם הן חסרות:
-import { Plus, Trash2, Play, Pause, RotateCcw, Monitor, Trophy, Image as ImageIcon, RotateCw, Trash, Lock, Settings, Layout } from 'lucide-react';
-import React, { useState, useEffect, useRef } from 'react';
-import socket from './socket';
-import { Plus, Trash2, Play, Pause, RotateCcw, Monitor, Trophy, Image as ImageIcon, RotateCw, Trash, Lock, Settings, Layout } from 'lucide-react';
+import { 
+  Plus, 
+  Trash2, 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Monitor, 
+  Trophy, 
+  Image as ImageIcon, 
+  RotateCw, 
+  Trash as TrashIcon, // שינוי שם למניעת התנגשות
+  Lock as LockIcon,   // שינוי שם למניעת התנגשות
+  Settings, 
+  Layout 
+} from 'lucide-react';
 
 const PLACEMENT_POINTS = {
   1: 10, 2: 6, 3: 5, 4: 4, 5: 3, 6: 2, 7: 1, 8: 1, 
   9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0, 16: 0
 };
 
-// --- רכיבי עזר לתצוגות OBS (נשארים בדיוק אותו דבר) ---
+// --- רכיבי עזר לתצוגות OBS ---
 
 const TimerOverlay = ({ timer }) => (
   <div className="min-h-screen flex items-start justify-center p-10 bg-transparent">
@@ -25,6 +35,7 @@ const TimerOverlay = ({ timer }) => (
 
 const OrangeLeaderboard = ({ gameState }) => {
   const isTeamDead = (team) => team.players.every(p => p.status === 'Dead');
+
   const sortedTeams = [...gameState.teams].sort((a, b) => {
     const aDead = isTeamDead(a);
     const bDead = isTeamDead(b);
@@ -48,15 +59,35 @@ const OrangeLeaderboard = ({ gameState }) => {
                 {index + 1}
               </div>
               <div className="flex-1 px-5 py-1 skew-x-[12deg] flex justify-between items-center text-white overflow-visible">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 bg-slate-800 rounded border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center">
-                    {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[6px] text-slate-600">TIGER</span>}
+                <div className="flex items-center gap-3 overflow-visible">
+                  <div className="w-7 h-7 bg-slate-800 rounded border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
+                    {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" /> : <span className="text-[6px] text-slate-600 font-black italic">TIGER</span>}
                   </div>
-                  <span className={`font-black uppercase italic text-xs truncate w-24 pr-1 ${dead ? 'text-slate-400' : 'text-white'}`}>{team.name}</span>
+                  <div className="flex flex-col items-start leading-none overflow-visible">
+                    <span className={`font-black uppercase italic text-xs tracking-tight truncate w-24 pr-1 text-right ${dead ? 'text-slate-400' : 'text-white'}`}>
+                      {team.name}
+                    </span>
+                    <div className="flex gap-1 mt-1">
+                      {team.players.map((p, i) => (
+                        <div key={i} className={`w-3 h-1.5 rounded-sm shadow-sm ${
+                          p.status === 'Alive' ? 'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]' : 
+                          p.status === 'Knock' ? 'bg-amber-500 animate-pulse' : 
+                          'bg-red-600 opacity-20'
+                        }`} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col items-end leading-none">
-                  <span className="text-[7px] font-black text-orange-400">TOTAL</span>
-                  <span className="text-lg font-black italic">{team.totalTournamentScore + team.currentGameKills}</span>
+                <div className="flex items-center gap-3 shrink-0 mr-1">
+                   <div className="flex flex-col items-center leading-none opacity-50">
+                      <span className="text-[7px] font-black uppercase text-slate-400">ELIMS</span>
+                      <span className="text-[11px] font-bold font-mono">{team.currentGameKills}</span>
+                   </div>
+                   <div className="w-px h-7 bg-slate-700/50" />
+                   <div className="flex flex-col items-end leading-none pr-1">
+                      <span className={`text-[7px] font-black uppercase ${dead ? 'text-slate-500' : 'text-orange-400'}`}>TOTAL</span>
+                      <span className="text-lg font-black italic leading-none text-white drop-shadow-md">{team.totalTournamentScore + team.currentGameKills}</span>
+                   </div>
                 </div>
               </div>
             </div>
@@ -71,37 +102,41 @@ const BlueSummaryOverlay = ({ teams }) => {
   const sorted = [...teams].sort((a, b) => (b.totalTournamentScore + b.currentGameKills) - (a.totalTournamentScore + a.currentGameKills));
   return (
     <div className="min-h-screen bg-[#020617] p-10 font-sans" dir="rtl">
-      <div className="max-w-5xl mx-auto bg-blue-900/90 border-t-8 border-blue-400 rounded-b-3xl shadow-2xl overflow-hidden">
-        <div className="bg-blue-600 py-6 text-center text-white">
-          <h1 className="text-4xl font-black italic uppercase tracking-widest">Tournament Leaderboard</h1>
+      <div className="max-w-5xl mx-auto bg-blue-900/90 border-t-8 border-blue-400 rounded-b-3xl shadow-2xl overflow-hidden shadow-[0_0_50px_rgba(30,58,138,0.5)]">
+        <div className="bg-blue-600 py-6 text-center text-white border-b border-blue-400/30">
+          <h1 className="text-4xl font-black italic uppercase tracking-widest drop-shadow-lg">Tournament Leaderboard</h1>
         </div>
         <table className="w-full text-right text-white">
-          <tr className="bg-blue-800/50 text-blue-200 uppercase text-sm font-black h-14 border-b border-blue-700">
-            <th className="p-4 pr-10">#</th>
-            <th className="p-4">Team</th>
-            <th className="p-4 text-center">Current Kills</th>
-            <th className="p-4 text-center">Total Points</th>
-          </tr>
-          {sorted.map((t, i) => (
-            <tr key={t.id} className="border-b border-blue-800/30 h-16">
-              <td className="p-4 pr-10 font-black text-blue-400 italic text-3xl">#{i + 1}</td>
-              <td className="p-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-800 rounded-lg overflow-hidden border border-blue-400/30">
-                  {t.logoUrl && <img src={t.logoUrl} className="w-full h-full object-cover" />}
-                </div>
-                <span className="font-black text-2xl uppercase italic">{t.name}</span>
-              </td>
-              <td className="p-4 text-center font-mono text-2xl font-bold">{t.currentGameKills}</td>
-              <td className="p-4 text-center font-black text-4xl text-yellow-400">{t.totalTournamentScore + t.currentGameKills}</td>
+          <thead>
+            <tr className="bg-blue-800/50 text-blue-200 uppercase text-sm font-black h-14 border-b border-blue-700">
+              <th className="p-4 pr-10">#</th>
+              <th className="p-4">Team</th>
+              <th className="p-4 text-center">Current Kills</th>
+              <th className="p-4 text-center">Total Points</th>
             </tr>
-          ))}
+          </thead>
+          <tbody>
+            {sorted.map((t, i) => (
+              <tr key={t.id} className="border-b border-blue-800/30 hover:bg-blue-700/40 h-16 transition-all">
+                <td className="p-4 pr-10 font-black text-blue-400 italic text-3xl">#{i + 1}</td>
+                <td className="p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-slate-800 rounded-lg border border-blue-400/30 overflow-hidden shadow-inner flex items-center justify-center">
+                    {t.logoUrl ? <img src={t.logoUrl} className="w-full h-full object-cover" /> : <div className="text-[8px] text-slate-500">TIGER</div>}
+                  </div>
+                  <span className="font-black text-2xl uppercase italic tracking-tighter">{t.name}</span>
+                </td>
+                <td className="p-4 text-center font-mono text-2xl font-bold text-blue-200">{t.currentGameKills}</td>
+                <td className="p-4 text-center font-black text-4xl text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.3)]">{t.totalTournamentScore + t.currentGameKills}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>
   );
 };
 
-// --- קומפוננטה ראשית (משולבת) ---
+// --- קומפוננטה ראשית ---
 
 function App() {
   const [internalView, setInternalView] = useState('admin'); 
@@ -112,7 +147,7 @@ function App() {
   const fileInputRef = useRef(null);
   const [selectedTeamForLogo, setSelectedTeamForLogo] = useState(null);
 
-  // --- תוספת ה-OBS: זיהוי תצוגה מה-URL ---
+  // זיהוי תצוגה מה-URL עבור OBS
   const params = new URLSearchParams(window.location.search);
   const urlView = params.get('view');
 
@@ -157,14 +192,12 @@ function App() {
     socket.emit('updateState', { ...gameState, teams: updatedTeams });
   };
 
-  // --- לוגיקת בחירת תצוגה (URL קודם ל-Internal) ---
   const activeView = urlView || internalView;
 
   if (activeView === 'timer') return <TimerOverlay timer={gameState.timer} />;
   if (activeView === 'leaderboard') return <OrangeLeaderboard gameState={gameState} />;
   if (activeView === 'summary') return <BlueSummaryOverlay teams={gameState.teams} />;
 
-  // --- לוח הבקרה המקורי שלך (Tiger CMS Pro) ---
   return (
     <div className="min-h-screen bg-[#020617] text-white p-6 font-sans select-none" dir="rtl">
       <input type="file" ref={fileInputRef} className="hidden" onChange={(e) => {
@@ -201,7 +234,7 @@ function App() {
           <div className="w-px bg-slate-800 mx-2" />
           <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => ({...t, currentGameKills: 0, placement: 0, players: Array(4).fill({status: 'Alive'})})), timer: {...gameState.timer, isRunning: false}})} className="bg-emerald-700 hover:bg-emerald-600 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><RotateCw size={16}/> NEXT MATCH</button>
           <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => ({...t, totalTournamentScore: 0, currentGameKills: 0}))})} className="bg-amber-700 hover:bg-amber-600 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><RotateCcw size={16}/> RESET SCORE</button>
-          <button onClick={() => {if(confirm("מחיקת הכל?")) socket.emit('updateState', {teams: [], timer: {minutes: 20, seconds: 0, isRunning: false}})}} className="bg-red-900 hover:bg-red-800 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><Trash size={16}/> DELETE ALL</button>
+          <button onClick={() => {if(confirm("מחיקת הכל?")) socket.emit('updateState', {teams: [], timer: {minutes: 20, seconds: 0, isRunning: false}})}} className="bg-red-900 hover:bg-red-800 px-4 rounded-xl text-[9px] font-bold flex flex-col justify-center items-center gap-1"><TrashIcon size={16}/> DELETE ALL</button>
           <button onClick={addTeam} className="bg-orange-600 hover:bg-orange-500 px-6 rounded-2xl font-black flex items-center gap-2 shadow-lg"><Plus size={24} strokeWidth={3} /> TEAM</button>
         </div>
       </header>
@@ -238,7 +271,7 @@ function App() {
                   <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 font-black">Kills: <span className="text-white text-sm ml-1 font-mono">{team.currentGameKills}</span></span>
                   <div className="flex gap-1">
                     <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => t.id === team.id ? {...t, currentGameKills: Math.max(0, t.currentGameKills - 1)} : t)})} className="w-7 h-7 bg-slate-800 rounded-lg hover:bg-slate-700">-</button>
-                    <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => (t.id === team.id && !isEliminated) ? {...t, currentGameKills: t.currentGameKills + 1} : t)})} disabled={isEliminated} className={`w-7 h-7 rounded-lg font-black text-white ${isEliminated ? 'bg-slate-700 opacity-30 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500'}`}>{isEliminated ? <Lock size={10} className="m-auto"/> : '+'}</button>
+                    <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => (t.id === team.id && !isEliminated) ? {...t, currentGameKills: t.currentGameKills + 1} : t)})} disabled={isEliminated} className={`w-7 h-7 rounded-lg font-black text-white ${isEliminated ? 'bg-slate-700 opacity-30 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500'}`}>{isEliminated ? <LockIcon size={10} className="m-auto"/> : '+'}</button>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
