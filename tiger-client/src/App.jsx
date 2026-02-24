@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import socket from './socket';
+// הוסף את שלוש השורות האלו אם הן חסרות:
+import { Plus, Trash2, Play, Pause, RotateCcw, Monitor, Trophy, Image as ImageIcon, RotateCw, Trash, Lock, Settings, Layout } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import socket from './socket';
 import { Plus, Trash2, Play, Pause, RotateCcw, Monitor, Trophy, Image as ImageIcon, RotateCw, Trash, Lock, Settings, Layout } from 'lucide-react';
 
 const PLACEMENT_POINTS = {
