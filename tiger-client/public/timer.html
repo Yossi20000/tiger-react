@@ -12,7 +12,6 @@
         <span id="timer-text" class="text-9xl font-mono font-black text-white tracking-tighter">00:00</span>
     </div>
     <script>
-        // התחברות לשרת ה-Backend
         const socket = io('https://tiger-panel.onrender.com'); 
         
         socket.on('gameState', (data) => {
@@ -22,8 +21,6 @@
                 document.getElementById('timer-text').innerText = `${min}:${sec}`;
             }
         });
-
-        socket.on('connect', () => console.log('Connected to Server'));
     </script>
 </body>
 </html>
