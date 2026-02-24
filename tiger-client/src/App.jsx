@@ -32,7 +32,7 @@ const TimerOverlay = ({ timer }) => (
   </div>
 );
 
-// --- 2. דף סטטוס (Orange Leaderboard) ל-OBS ---
+// --- 2. דף סטטוס (Leaderboard) ל-OBS ---
 const StatusOverlay = ({ gameState }) => {
   const isTeamDead = (team) => team.players.every(p => p.status === 'Dead');
   const sortedTeams = [...gameState.teams].sort((a, b) => {
@@ -58,13 +58,11 @@ const StatusOverlay = ({ gameState }) => {
                 {index + 1}
               </div>
               <div className="flex-1 px-5 py-1 skew-x-[12deg] flex justify-between items-center text-white overflow-visible">
-                <div className="flex items-center gap-3 overflow-visible">
-                  <div className="w-7 h-7 bg-slate-800 rounded border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 bg-slate-800 rounded border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center">
                     {team.logoUrl ? <img src={team.logoUrl} className="w-full h-full object-cover" alt="" /> : <span className="text-[6px] text-slate-600 font-black italic">TIGER</span>}
                   </div>
-                  <div className="flex flex-col leading-none items-start">
-                    <span className={`font-black uppercase italic text-xs tracking-tight truncate w-24 pr-1 text-right ${dead ? 'text-slate-400' : 'text-white'}`}>{team.name}</span>
-                  </div>
+                  <span className={`font-black uppercase italic text-xs tracking-tight truncate w-24 pr-1 text-right ${dead ? 'text-slate-400' : 'text-white'}`}>{team.name}</span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 mr-1">
                    <div className="flex flex-col items-end leading-none pr-1">
@@ -81,7 +79,7 @@ const StatusOverlay = ({ gameState }) => {
   );
 };
 
-// --- 3. דף טבלה סיכום (Blue Board) ל-OBS ---
+// --- 3. דף טבלה סיכום ל-OBS ---
 const SummaryOverlay = ({ teams }) => {
   const sorted = [...teams].sort((a, b) => (b.totalTournamentScore + b.currentGameKills) - (a.totalTournamentScore + a.currentGameKills));
   return (
@@ -95,8 +93,8 @@ const SummaryOverlay = ({ teams }) => {
             <tr className="bg-blue-800/50 text-blue-200 uppercase text-sm font-black h-14 border-b border-blue-700">
               <th className="p-4 pr-10">#</th>
               <th className="p-4">Team</th>
-              <th className="p-4 text-center">Current Kills</th>
-              <th className="p-4 text-center">Total Points</th>
+              <th className="p-4 text-center">Kills</th>
+              <th className="p-4 text-center">Points</th>
             </tr>
           </thead>
           <tbody>
@@ -257,15 +255,7 @@ function App() {
                     <button onClick={() => socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => (t.id === team.id && !isEliminated) ? {...t, currentGameKills: t.currentGameKills + 1} : t)})} disabled={isEliminated} className={`w-7 h-7 rounded-lg font-black text-white ${isEliminated ? 'bg-slate-700 opacity-30 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500'}`}>{isEliminated ? <LockIcon size={10} className="m-auto"/> : '+'}</button>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1">
-                   <button onClick={() => {
-                     const rank = window.prompt("בחר מיקום (1-16):");
-                     const rankNum = parseInt(rank);
-                     if (isNaN(rankNum) || rankNum < 1 || rankNum > 16) return;
-                     socket.emit('updateState', {...gameState, teams: gameState.teams.map(t => t.id === team.id ? {...t, placement: rankNum, totalTournamentScore: t.totalTournamentScore + PLACEMENT_POINTS[rankNum]} : t)});
-                   }} className="bg-blue-900/40 border border-blue-500/30 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-tighter hover:bg-blue-800/40">{team.placement > 0 ? `RANK #${team.placement}` : 'SET RANK'}</button>
-                   <div className="bg-slate-800/80 py-1.5 text-center rounded-xl font-mono text-blue-400 font-black text-[10px] shadow-inner border border-white/5">TOTAL: {team.totalTournamentScore + team.currentGameKills}</div>
-                </div>
+                <div className="bg-slate-800/80 py-1.5 text-center rounded-xl font-mono text-blue-400 font-black text-[10px] shadow-inner border border-white/5">TOTAL: {team.totalTournamentScore + team.currentGameKills}</div>
               </div>
             </div>
           );
